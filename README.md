@@ -1,12 +1,20 @@
-## Go by Example
+## Rust by Example
 
-Content and build toolchain for [Go by Example](https://gobyexample.com),
-a site that teaches Go via annotated example programs.
+Content and build toolchain for [Rust by Example](https://rustbyexample.alhur.es),
+a site that teaches Rust via annotated example programs.
+
+This is a fork of [Go by Example](https://gobyexample.com/) that
+aims to be the most useful guide for beginner Rust programmers as
+that is for Go programmers.
+
+The [official "Rust by Example"](https://doc.rust-lang.org/stable/rust-by-example/)
+site is more like a tutorial/full manual than a quick reference of
+useful constructs, so there's this one here.
 
 
 ### Overview
 
-The Go by Example site is built by extracting code and
+The Rust by Example site is built by extracting code and
 comments from source files in `examples` and rendering
 them via the `templates` into a static `public`
 directory. The programs implementing this build process
@@ -36,37 +44,10 @@ $ tools/build-loop
 
 ### Publishing
 
-To upload the site:
-
-```console
-$ gem install aws-sdk
-$ export AWS_ACCESS_KEY_ID=...
-$ export AWS_SECRET_ACCESS_KEY=...
-$ tools/upload-site
-```
+The site will be built in the `docs/` subdirectory. GitHub pages supports
+hosting that but you can also publish elsewhere.
 
 ### License
 
-This work is copyright Mark McGranaghan and licensed under a
+This work is a fork of [Go by Example]() by Mark McGranaghan and licensed under a
 [Creative Commons Attribution 3.0 Unported License](http://creativecommons.org/licenses/by/3.0/).
-
-The Go Gopher is copyright [Renée French](http://reneefrench.blogspot.com/) and licensed under a
-[Creative Commons Attribution 3.0 Unported License](http://creativecommons.org/licenses/by/3.0/).
-
-
-### Translations
-
-Contributor translations of the Go by Example site are available in:
-
-* [Chinese](https://gobyexample.xgwang.me/) by [xg-wang](https://github.com/xg-wang/gobyexample)
-* [French](http://le-go-par-l-exemple.keiruaprod.fr) by [keirua](https://github.com/keirua/gobyexample)
-* [Italian](http://gobyexample.it) by the [Go Italian community](https://github.com/golangit/gobyexample-it)
-* [Korean](https://mingrammer.com/gobyexample/) by [mingrammer](https://github.com/mingrammer)
-* [Spanish](http://goconejemplos.com) by the [Go Mexico community](https://github.com/dabit/gobyexample)
-* [Ukrainian](http://gobyexample.com.ua/) by [butuzov](https://github.com/butuzov/gobyexample)
-
-### Thanks
-
-Thanks to [Jeremy Ashkenas](https://github.com/jashkenas)
-for [Docco](http://jashkenas.github.com/docco/), which
-inspired this project.
