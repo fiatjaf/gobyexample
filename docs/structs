@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go by Example: Structs</title>
+    <link rel=stylesheet href="site.css">
+  </head>
+  <body>
+    <div class="example" id="structs">
+      <h2><a href="./">Go by Example</a>: Structs</h2>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>Go&rsquo;s <em>structs</em> are typed collections of fields.
+They&rsquo;re useful for grouping data together to form
+records.</p>
+
+          </td>
+          <td class="code empty leading">
+	        
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>This <code>person</code> struct type has <code>name</code> and <code>age</code> fields.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="k">type</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="n">age</span><span class="w">  </span><span class="n">int</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>This syntax creates a new struct.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">person</span><span class="p">{</span><span class="s">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">})</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>You can name the fields when initializing a struct.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">person</span><span class="p">{</span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">age</span><span class="o">:</span><span class="w"> </span><span class="mi">30</span><span class="p">})</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Omitted fields will be zero-valued.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">person</span><span class="p">{</span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Fred&quot;</span><span class="p">})</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>An <code>&amp;</code> prefix yields a pointer to the struct.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="n">person</span><span class="p">{</span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Ann&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">age</span><span class="o">:</span><span class="w"> </span><span class="mi">40</span><span class="p">})</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Access struct fields with a dot.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">s</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">person</span><span class="p">{</span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Sean&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">age</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">name</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>You can also use dots with struct pointers - the
+pointers are automatically dereferenced.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">sp</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">age</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Structs are mutable.</p>
+
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">sp</span><span class="p">.</span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">51</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">sp</span><span class="p">.</span><span class="n">age</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="gp">$</span> go run structs.go
+<span class="go">{Bob 20}</span>
+<span class="go">{Alice 30}</span>
+<span class="go">{Fred 0}</span>
+<span class="go">&amp;{Ann 40}</span>
+<span class="go">Sean</span>
+<span class="go">50</span>
+<span class="go">51</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      
+      <p class="next">
+        Next example: <a href="methods">Methods</a>.
+      </p>
+      
+      <p class="footer">
+        by <a href="https://fiatjaf.alhur.es/">fiatjaf</a> | <a href="https://github.com/fiatjaf/rustbyexample/blob/master/examples/structs">source</a> | <a href="https://github.com/fiatjaf/rustbyexample#license">license</a>
+      </p>
+    </div>
+  </body>
+</html>

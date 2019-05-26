@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go by Example: Reading Files</title>
+    <link rel=stylesheet href="site.css">
+  </head>
+  <body>
+    <div class="example" id="reading-files">
+      <h2><a href="./">Go by Example</a>: Reading Files</h2>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>Reading and writing files are basic tasks needed for
+many Go programs. First we&rsquo;ll look at some examples of
+reading files.</p>
+
+          </td>
+          <td class="code empty leading">
+	        
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;bufio&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;io&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;io/ioutil&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;os&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Reading files requires checking most calls for errors.
+This helper will streamline our error checks below.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">check</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">panic</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Perhaps the most basic file reading task is
+slurping a file&rsquo;s entire contents into memory.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">dat</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">ioutil</span><span class="p">.</span><span class="n">ReadFile</span><span class="p">(</span><span class="s">&quot;/tmp/dat&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">dat</span><span class="p">))</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>You&rsquo;ll often want more control over how and what
+parts of a file are read. For these tasks, start
+by <code>Open</code>ing a file to obtain an <code>os.File</code> value.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">os</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="s">&quot;/tmp/dat&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Read some bytes from the beginning of the file.
+Allow up to 5 to be read but also note how many
+actually were read.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">b1</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">([]</span><span class="n">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">n1</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">Read</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">&quot;%d bytes: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n1</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="p">(</span><span class="n">b1</span><span class="p">))</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>You can also <code>Seek</code> to a known location in the file
+and <code>Read</code> from there.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">o2</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">Seek</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">b2</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">([]</span><span class="n">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">n2</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">Read</span><span class="p">(</span><span class="n">b2</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">&quot;%d bytes @ %d: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n2</span><span class="p">,</span><span class="w"> </span><span class="n">o2</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="p">(</span><span class="n">b2</span><span class="p">))</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>The <code>io</code> package provides some functions that may
+be helpful for file reading. For example, reads
+like the ones above can be more robustly
+implemented with <code>ReadAtLeast</code>.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">o3</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">Seek</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">b3</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">([]</span><span class="n">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">n3</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">io</span><span class="p">.</span><span class="n">ReadAtLeast</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">b3</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">&quot;%d bytes @ %d: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n3</span><span class="p">,</span><span class="w"> </span><span class="n">o3</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="p">(</span><span class="n">b3</span><span class="p">))</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>There is no built-in rewind, but <code>Seek(0, 0)</code>
+accomplishes this.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">Seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>The <code>bufio</code> package implements a buffered
+reader that may be useful both for its efficiency
+with many small reads and because of the additional
+reading methods it provides.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">r4</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">bufio</span><span class="p">.</span><span class="n">NewReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">b4</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">r4</span><span class="p">.</span><span class="n">Peek</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">check</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">&quot;5 bytes: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="p">(</span><span class="n">b4</span><span class="p">))</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Close the file when you&rsquo;re done (usually this would
+be scheduled immediately after <code>Open</code>ing with
+<code>defer</code>).</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">Close</span><span class="p">()</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="gp">$</span> <span class="nb">echo</span> <span class="s2">&quot;hello&quot;</span> &gt; /tmp/dat
+<span class="gp">$</span> <span class="nb">echo</span> <span class="s2">&quot;go&quot;</span> &gt;&gt;   /tmp/dat
+<span class="gp">$</span> go run reading-files.go 
+<span class="go">hello</span>
+<span class="go">go</span>
+<span class="go">5 bytes: hello</span>
+<span class="go">2 bytes @ 6: go</span>
+<span class="go">2 bytes @ 6: go</span>
+<span class="go">5 bytes: hello</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Next we&rsquo;ll look at writing files.</p>
+
+          </td>
+          <td class="code empty">
+	        
+            
+          </td>
+        </tr>
+        
+      </table>
+      
+      
+      <p class="next">
+        Next example: <a href="writing-files">Writing Files</a>.
+      </p>
+      
+      <p class="footer">
+        by <a href="https://fiatjaf.alhur.es/">fiatjaf</a> | <a href="https://github.com/fiatjaf/rustbyexample/blob/master/examples/reading-files">source</a> | <a href="https://github.com/fiatjaf/rustbyexample#license">license</a>
+      </p>
+    </div>
+  </body>
+</html>

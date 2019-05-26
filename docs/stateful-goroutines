@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go by Example: Stateful Goroutines</title>
+    <link rel=stylesheet href="site.css">
+  </head>
+  <body>
+    <div class="example" id="stateful-goroutines">
+      <h2><a href="./">Go by Example</a>: Stateful Goroutines</h2>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>In the previous example we used explicit locking with
+<a href="mutexes">mutexes</a> to synchronize access to shared state
+across multiple goroutines. Another option is to use the
+built-in synchronization features of  goroutines and
+channels to achieve the same result. This channel-based
+approach aligns with Go&rsquo;s ideas of sharing memory by
+communicating and having each piece of data owned
+by exactly 1 goroutine.</p>
+
+          </td>
+          <td class="code empty leading">
+	        
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;math/rand&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;sync/atomic&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;time&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>In this example our state will be owned by a single
+goroutine. This will guarantee that the data is never
+corrupted with concurrent access. In order to read or
+write that state, other goroutines will send messages
+to the owning goroutine and receive corresponding
+replies. These <code>readOp</code> and <code>writeOp</code> <code>struct</code>s
+encapsulate those requests and a way for the owning
+goroutine to respond.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="k">type</span><span class="w"> </span><span class="n">readOp</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">key</span><span class="w">  </span><span class="n">int</span><span class="w"></span>
+<span class="w">    </span><span class="n">resp</span><span class="w"> </span><span class="n">chan</span><span class="w"> </span><span class="n">int</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="k">type</span><span class="w"> </span><span class="n">writeOp</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">key</span><span class="w">  </span><span class="n">int</span><span class="w"></span>
+<span class="w">    </span><span class="n">val</span><span class="w">  </span><span class="n">int</span><span class="w"></span>
+<span class="w">    </span><span class="n">resp</span><span class="w"> </span><span class="n">chan</span><span class="w"> </span><span class="kt">bool</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>As before we&rsquo;ll count how many operations we perform.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">var</span><span class="w"> </span><span class="n">readOps</span><span class="w"> </span><span class="n">uint64</span><span class="w"></span>
+<span class="w">    </span><span class="n">var</span><span class="w"> </span><span class="n">writeOps</span><span class="w"> </span><span class="n">uint64</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>The <code>reads</code> and <code>writes</code> channels will be used by
+other goroutines to issue read and write requests,
+respectively.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">reads</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="o">*</span><span class="n">readOp</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">writes</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="o">*</span><span class="n">writeOp</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Here is the goroutine that owns the <code>state</code>, which
+is a map as in the previous example but now private
+to the stateful goroutine. This goroutine repeatedly
+selects on the <code>reads</code> and <code>writes</code> channels,
+responding to requests as they arrive. A response
+is executed by first performing the requested
+operation and then sending a value on the response
+channel <code>resp</code> to indicate success (and the desired
+value in the case of <code>reads</code>).</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">go</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">var</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">map</span><span class="p">[</span><span class="n">int</span><span class="p">]</span><span class="n">int</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">select</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">case</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">reads</span><span class="o">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">read</span><span class="p">.</span><span class="n">resp</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">state</span><span class="p">[</span><span class="n">read</span><span class="p">.</span><span class="n">key</span><span class="p">]</span><span class="w"></span>
+<span class="w">            </span><span class="n">case</span><span class="w"> </span><span class="n">write</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">writes</span><span class="o">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">state</span><span class="p">[</span><span class="n">write</span><span class="p">.</span><span class="n">key</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">write</span><span class="p">.</span><span class="n">val</span><span class="w"></span>
+<span class="w">                </span><span class="n">write</span><span class="p">.</span><span class="n">resp</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">true</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}()</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>This starts 100 goroutines to issue reads to the
+state-owning goroutine via the <code>reads</code> channel.
+Each read requires constructing a <code>readOp</code>, sending
+it over the <code>reads</code> channel, and the receiving the
+result over the provided <code>resp</code> channel.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="n">r</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">go</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">read</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">readOp</span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="n">key</span><span class="o">:</span><span class="w">  </span><span class="n">rand</span><span class="p">.</span><span class="n">Intn</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"></span>
+<span class="w">                    </span><span class="n">resp</span><span class="o">:</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="n">int</span><span class="p">)}</span><span class="w"></span>
+<span class="w">                </span><span class="n">reads</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read</span><span class="w"></span>
+<span class="w">                </span><span class="o">&lt;-</span><span class="n">read</span><span class="p">.</span><span class="n">resp</span><span class="w"></span>
+<span class="w">                </span><span class="n">atomic</span><span class="p">.</span><span class="n">AddUint64</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readOps</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">time</span><span class="p">.</span><span class="n">Sleep</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">Millisecond</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}()</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>We start 10 writes as well, using a similar
+approach.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">w</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">go</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">write</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">writeOp</span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="n">key</span><span class="o">:</span><span class="w">  </span><span class="n">rand</span><span class="p">.</span><span class="n">Intn</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"></span>
+<span class="w">                    </span><span class="n">val</span><span class="o">:</span><span class="w">  </span><span class="n">rand</span><span class="p">.</span><span class="n">Intn</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span><span class="w"></span>
+<span class="w">                    </span><span class="n">resp</span><span class="o">:</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="kt">bool</span><span class="p">)}</span><span class="w"></span>
+<span class="w">                </span><span class="n">writes</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">write</span><span class="w"></span>
+<span class="w">                </span><span class="o">&lt;-</span><span class="n">write</span><span class="p">.</span><span class="n">resp</span><span class="w"></span>
+<span class="w">                </span><span class="n">atomic</span><span class="p">.</span><span class="n">AddUint64</span><span class="p">(</span><span class="o">&amp;</span><span class="n">writeOps</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">time</span><span class="p">.</span><span class="n">Sleep</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">Millisecond</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}()</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Let the goroutines work for a second.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">time</span><span class="p">.</span><span class="n">Sleep</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">Second</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Finally, capture and report the op counts.</p>
+
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">readOpsFinal</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">atomic</span><span class="p">.</span><span class="n">LoadUint64</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readOps</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="s">&quot;readOps:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">readOpsFinal</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">writeOpsFinal</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">atomic</span><span class="p">.</span><span class="n">LoadUint64</span><span class="p">(</span><span class="o">&amp;</span><span class="n">writeOps</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="s">&quot;writeOps:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">writeOpsFinal</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>Running our program shows that the goroutine-based
+state management example completes about 80,000
+total operations.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="gp">$</span> go run stateful-goroutines.go
+<span class="go">readOps: 71708</span>
+<span class="go">writeOps: 7177</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>For this particular case the goroutine-based approach
+was a bit more involved than the mutex-based one. It
+might be useful in certain cases though, for example
+where you have other channels involved or when managing
+multiple such mutexes would be error-prone. You should
+use whichever approach feels most natural, especially
+with respect to understanding the correctness of your
+program.</p>
+
+          </td>
+          <td class="code empty">
+	        
+            
+          </td>
+        </tr>
+        
+      </table>
+      
+      
+      <p class="next">
+        Next example: <a href="sorting">Sorting</a>.
+      </p>
+      
+      <p class="footer">
+        by <a href="https://fiatjaf.alhur.es/">fiatjaf</a> | <a href="https://github.com/fiatjaf/rustbyexample/blob/master/examples/stateful-goroutines">source</a> | <a href="https://github.com/fiatjaf/rustbyexample#license">license</a>
+      </p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go by Example: Base64 Encoding</title>
+    <link rel=stylesheet href="site.css">
+  </head>
+  <body>
+    <div class="example" id="base64-encoding">
+      <h2><a href="./">Go by Example</a>: Base64 Encoding</h2>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>Go provides built-in support for <a href="http://en.wikipedia.org/wiki/Base64">base64
+encoding/decoding</a>.</p>
+
+          </td>
+          <td class="code empty leading">
+	        
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>This syntax imports the <code>encoding/base64</code> package with
+the <code>b64</code> name instead of the default <code>base64</code>. It&rsquo;ll
+save us some space below.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="n">b64</span><span class="w"> </span><span class="s">&quot;encoding/base64&quot;</span><span class="w"></span>
+<span class="n">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Here&rsquo;s the <code>string</code> we&rsquo;ll encode/decode.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">data</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;abc123!?$*&amp;()&#39;-=@~&quot;</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Go supports both standard and URL-compatible
+base64. Here&rsquo;s how to encode using the standard
+encoder. The encoder requires a <code>[]byte</code> so we
+cast our <code>string</code> to that type.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">sEnc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">b64</span><span class="p">.</span><span class="n">StdEncoding</span><span class="p">.</span><span class="n">EncodeToString</span><span class="p">([]</span><span class="n">byte</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">sEnc</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Decoding may return an error, which you can check
+if you don&rsquo;t already know the input to be
+well-formed.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">sDec</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">b64</span><span class="p">.</span><span class="n">StdEncoding</span><span class="p">.</span><span class="n">DecodeString</span><span class="p">(</span><span class="n">sEnc</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">sDec</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">()</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>This encodes/decodes using a URL-compatible base64
+format.</p>
+
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">uEnc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">b64</span><span class="p">.</span><span class="n">URLEncoding</span><span class="p">.</span><span class="n">EncodeToString</span><span class="p">([]</span><span class="n">byte</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">uEnc</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">uDec</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">b64</span><span class="p">.</span><span class="n">URLEncoding</span><span class="p">.</span><span class="n">DecodeString</span><span class="p">(</span><span class="n">uEnc</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">uDec</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>The string encodes to slightly different values with the
+standard and URL base64 encoders (trailing <code>+</code> vs <code>-</code>)
+but they both decode to the original string as desired.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="gp">$</span> go run base64-encoding.go
+<span class="go">YWJjMTIzIT8kKiYoKSctPUB+</span>
+<span class="go">abc123!?$*&amp;()&#39;-=@~</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="go">YWJjMTIzIT8kKiYoKSctPUB-</span>
+<span class="go">abc123!?$*&amp;()&#39;-=@~</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      
+      <p class="next">
+        Next example: <a href="reading-files">Reading Files</a>.
+      </p>
+      
+      <p class="footer">
+        by <a href="https://fiatjaf.alhur.es/">fiatjaf</a> | <a href="https://github.com/fiatjaf/rustbyexample/blob/master/examples/base64-encoding">source</a> | <a href="https://github.com/fiatjaf/rustbyexample#license">license</a>
+      </p>
+    </div>
+  </body>
+</html>

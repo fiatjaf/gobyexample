@@ -1,2 +1,4 @@
 .anvil
 *.pyc
+*.swo
+*.swp

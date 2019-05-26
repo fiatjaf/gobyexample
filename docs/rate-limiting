@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go by Example: Rate Limiting</title>
+    <link rel=stylesheet href="site.css">
+  </head>
+  <body>
+    <div class="example" id="rate-limiting">
+      <h2><a href="./">Go by Example</a>: Rate Limiting</h2>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p><em><a href="http://en.wikipedia.org/wiki/Rate_limiting">Rate limiting</a></em>
+is an important mechanism for controlling resource
+utilization and maintaining quality of service. Go
+elegantly supports rate limiting with goroutines,
+channels, and <a href="tickers">tickers</a>.</p>
+
+          </td>
+          <td class="code empty leading">
+	        
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="s">&quot;time&quot;</span><span class="w"></span>
+<span class="n">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>First we&rsquo;ll look at basic rate limiting. Suppose
+we want to limit our handling of incoming requests.
+We&rsquo;ll serve these requests off a channel of the
+same name.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">requests</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="n">int</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">requests</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">close</span><span class="p">(</span><span class="n">requests</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>This <code>limiter</code> channel will receive a value
+every 200 milliseconds. This is the regulator in
+our rate limiting scheme.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">limiter</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Tick</span><span class="p">(</span><span class="mi">200</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Millisecond</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>By blocking on a receive from the <code>limiter</code> channel
+before serving each request, we limit ourselves to
+1 request every 200 milliseconds.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">req</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">range</span><span class="w"> </span><span class="n">requests</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="o">&lt;-</span><span class="n">limiter</span><span class="w"></span>
+<span class="w">        </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="s">&quot;request&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Now</span><span class="p">())</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>We may want to allow short bursts of requests in
+our rate limiting scheme while preserving the
+overall rate limit. We can accomplish this by
+buffering our limiter channel. This <code>burstyLimiter</code>
+channel will allow bursts of up to 3 events.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">burstyLimiter</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Time</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Fill up the channel to represent allowed bursting.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">burstyLimiter</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Now</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Every 200 milliseconds we&rsquo;ll try to add a new
+value to <code>burstyLimiter</code>, up to its limit of 3.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">go</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">range</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Tick</span><span class="p">(</span><span class="mi">200</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Millisecond</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">burstyLimiter</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">t</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}()</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Now simulate 5 more incoming requests. The first
+3 of these will benefit from the burst capability
+of <code>burstyLimiter</code>.</p>
+
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">burstyRequests</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="n">int</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">burstyRequests</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">close</span><span class="p">(</span><span class="n">burstyRequests</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">req</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">range</span><span class="w"> </span><span class="n">burstyRequests</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="o">&lt;-</span><span class="n">burstyLimiter</span><span class="w"></span>
+<span class="w">        </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="s">&quot;request&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">.</span><span class="n">Now</span><span class="p">())</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>Running our program we see the first batch of requests
+handled once every ~200 milliseconds as desired.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="gp">$</span> go run rate-limiting.go
+<span class="go">request 1 2012-10-19 00:38:18.687438 +0000 UTC</span>
+<span class="go">request 2 2012-10-19 00:38:18.887471 +0000 UTC</span>
+<span class="go">request 3 2012-10-19 00:38:19.087238 +0000 UTC</span>
+<span class="go">request 4 2012-10-19 00:38:19.287338 +0000 UTC</span>
+<span class="go">request 5 2012-10-19 00:38:19.487331 +0000 UTC</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>For the second batch of requests we serve the first
+3 immediately because of the burstable rate limiting,
+then serve the remaining 2 with ~200ms delays each.</p>
+
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="go">request 1 2012-10-19 00:38:20.487578 +0000 UTC</span>
+<span class="go">request 2 2012-10-19 00:38:20.487645 +0000 UTC</span>
+<span class="go">request 3 2012-10-19 00:38:20.487676 +0000 UTC</span>
+<span class="go">request 4 2012-10-19 00:38:20.687483 +0000 UTC</span>
+<span class="go">request 5 2012-10-19 00:38:20.887542 +0000 UTC</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      
+      <p class="next">
+        Next example: <a href="atomic-counters">Atomic Counters</a>.
+      </p>
+      
+      <p class="footer">
+        by <a href="https://fiatjaf.alhur.es/">fiatjaf</a> | <a href="https://github.com/fiatjaf/rustbyexample/blob/master/examples/rate-limiting">source</a> | <a href="https://github.com/fiatjaf/rustbyexample#license">license</a>
+      </p>
+    </div>
+  </body>
+</html>

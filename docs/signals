@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Go by Example: Signals</title>
+    <link rel=stylesheet href="site.css">
+  </head>
+  <body>
+    <div class="example" id="signals">
+      <h2><a href="./">Go by Example</a>: Signals</h2>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>Sometimes we&rsquo;d like our Go programs to intelligently
+handle <a href="http://en.wikipedia.org/wiki/Unix_signal">Unix signals</a>.
+For example, we might want a server to gracefully
+shutdown when it receives a <code>SIGTERM</code>, or a command-line
+tool to stop processing input if it receives a <code>SIGINT</code>.
+Here&rsquo;s how to handle signals in Go with channels.</p>
+
+          </td>
+          <td class="code empty leading">
+	        
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="n">import</span><span class="w"> </span><span class="s">&quot;os&quot;</span><span class="w"></span>
+<span class="n">import</span><span class="w"> </span><span class="s">&quot;os/signal&quot;</span><span class="w"></span>
+<span class="n">import</span><span class="w"> </span><span class="s">&quot;syscall&quot;</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>Go signal notification works by sending <code>os.Signal</code>
+values on a channel. We&rsquo;ll create a channel to
+receive these notifications (we&rsquo;ll also make one to
+notify us when the program can exit).</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">sigs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="n">os</span><span class="p">.</span><span class="n">Signal</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">done</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">make</span><span class="p">(</span><span class="n">chan</span><span class="w"> </span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p><code>signal.Notify</code> registers the given channel to
+receive notifications of the specified signals.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">signal</span><span class="p">.</span><span class="n">Notify</span><span class="p">(</span><span class="n">sigs</span><span class="p">,</span><span class="w"> </span><span class="n">syscall</span><span class="p">.</span><span class="n">SIGINT</span><span class="p">,</span><span class="w"> </span><span class="n">syscall</span><span class="p">.</span><span class="n">SIGTERM</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>This goroutine executes a blocking receive for
+signals. When it gets one it&rsquo;ll print it out
+and then notify the program that it can finish.</p>
+
+          </td>
+          <td class="code leading">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">go</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">sig</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">sigs</span><span class="w"></span>
+<span class="w">        </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">done</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">true</span><span class="w"></span>
+<span class="w">    </span><span class="p">}()</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="docs">
+            <p>The program will wait here until it gets the
+expected signal (as indicated by the goroutine
+above sending a value on <code>done</code>) and then exit.</p>
+
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="s">&quot;awaiting signal&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="o">&lt;-</span><span class="n">done</span><span class="w"></span>
+<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="s">&quot;exiting&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      <table>
+        
+        <tr>
+          <td class="docs">
+            <p>When we run this program it will block waiting for a
+signal. By typing <code>ctrl-C</code> (which the
+terminal shows as <code>^C</code>) we can send a <code>SIGINT</code> signal,
+causing the program to print <code>interrupt</code> and then exit.</p>
+
+          </td>
+          <td class="code">
+	        
+            <div class="highlight"><pre><span class="gp">$</span> go run signals.go
+<span class="go">awaiting signal</span>
+<span class="go">^C</span>
+<span class="go">interrupt</span>
+<span class="go">exiting</span>
+</pre></div>
+
+          </td>
+        </tr>
+        
+      </table>
+      
+      
+      <p class="next">
+        Next example: <a href="exit">Exit</a>.
+      </p>
+      
+      <p class="footer">
+        by <a href="https://fiatjaf.alhur.es/">fiatjaf</a> | <a href="https://github.com/fiatjaf/rustbyexample/blob/master/examples/signals">source</a> | <a href="https://github.com/fiatjaf/rustbyexample#license">license</a>
+      </p>
+    </div>
+  </body>
+</html>

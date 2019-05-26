@@ -3,19 +3,19 @@ package main
 import (
 	"crypto/sha1"
 	"fmt"
-	"github.com/russross/blackfriday"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/russross/blackfriday"
 )
 
-var cacheDir = "/tmp/gobyexample-cache"
-var siteDir = "./public"
+var cacheDir = "/tmp/rustbyexample-cache"
+var siteDir = "./docs"
 var pygmentizeBin = "./vendor/pygments/pygmentize"
 
 func check(err error) {
@@ -100,8 +100,8 @@ func mustGlob(glob string) []string {
 }
 
 func whichLexer(path string) string {
-	if strings.HasSuffix(path, ".go") {
-		return "go"
+	if strings.HasSuffix(path, ".rust") {
+		return "rust"
 	} else if strings.HasSuffix(path, ".sh") {
 		return "console"
 	}
@@ -126,29 +126,15 @@ type Seg struct {
 
 // Example is info extracted from an example file
 type Example struct {
-	ID, Name                    string
-	GoCode, GoCodeHash, URLHash string
-	Segs                        [][]*Seg
-	NextExample                 *Example
+	ID, Name    string
+	RustCode    string
+	Segs        [][]*Seg
+	NextExample *Example
 }
 
 func parseHashFile(sourcePath string) (string, string) {
 	lines := readLines(sourcePath)
 	return lines[0], lines[1]
-}
-
-func resetURLHashFile(codehash, code, sourcePath string) string {
-	payload := strings.NewReader(code)
-	resp, err := http.Post("https://play.golang.org/share", "text/plain", payload)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	urlkey := string(body)
-	data := fmt.Sprintf("%s\n%s\n", codehash, urlkey)
-	ioutil.WriteFile(sourcePath, []byte(data), 0644)
-	return urlkey
 }
 
 func parseSegs(sourcePath string) ([]*Seg, string) {
@@ -192,7 +178,7 @@ func parseSegs(sourcePath string) ([]*Seg, string) {
 	for i, seg := range segs {
 		seg.CodeEmpty = (seg.Code == "")
 		seg.CodeLeading = (i < (len(segs) - 1))
-		seg.CodeRun = strings.Contains(seg.Code, "package main")
+		seg.CodeRun = strings.Contains(seg.Code, "fn main")
 	}
 	return segs, filecontent
 }
@@ -208,8 +194,8 @@ func parseAndRenderSegs(sourcePath string) ([]*Seg, string) {
 			seg.CodeRendered = cachedPygmentize(lexer, seg.Code)
 		}
 	}
-	// we are only interested in the 'go' code to pass to play.golang.org
-	if lexer != "go" {
+	// we are only interested in the 'rust' code to pass to play.rust-lang.org/
+	if lexer != "rust" {
 		filecontent = ""
 	}
 	return segs, filecontent
@@ -230,19 +216,11 @@ func parseExamples() []*Example {
 			example.Segs = make([][]*Seg, 0)
 			sourcePaths := mustGlob("examples/" + exampleID + "/*")
 			for _, sourcePath := range sourcePaths {
-				if strings.HasSuffix(sourcePath, ".hash") {
-					example.GoCodeHash, example.URLHash = parseHashFile(sourcePath)
-				} else {
-					sourceSegs, filecontents := parseAndRenderSegs(sourcePath)
-					if filecontents != "" {
-						example.GoCode = filecontents
-					}
-					example.Segs = append(example.Segs, sourceSegs)
+				sourceSegs, filecontents := parseAndRenderSegs(sourcePath)
+				if filecontents != "" {
+					example.RustCode = filecontents
 				}
-			}
-			newCodeHash := sha1Sum(example.GoCode)
-			if example.GoCodeHash != newCodeHash {
-				example.URLHash = resetURLHashFile(newCodeHash, example.GoCode, "examples/"+example.ID+"/"+example.ID+".hash")
+				example.Segs = append(example.Segs, sourceSegs)
 			}
 			examples = append(examples, &example)
 		}
