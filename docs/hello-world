@@ -2,12 +2,18 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Go by Example: Hello World</title>
+    <title>Rust by Example: Hello World</title>
     <link rel=stylesheet href="site.css">
   </head>
   <body>
     <div class="example" id="hello-world">
-      <h2><a href="./">Go by Example</a>: Hello World</h2>
+      <pre id="rustcode" hidden>// Our first program will print the classic "hello world"
+// message. Here's the full source code.
+fn main() {
+    println!("Hello, world!");
+}
+</pre>
+      <h2><a href="./">Rust by Example</a>: Hello World</h2>
       
       <table>
         
@@ -21,10 +27,8 @@ message. Here&rsquo;s the full source code.</p>
 	        
               <a href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code="><img title="Run code" src="rust-logo-blk.svg" class="run" /></a>
               <script>
-                document.querySelector('a[href^="https://play.rust-lang.org"]').href += escape(`
-fn main() {
-    println!("Hello, world!");
-}`)
+                document.querySelector('a[href^="https://play.rust-lang.org"]').href +=
+                  escape(document.getElementById('rustcode').innerHTML)
               </script>
             
             <div class="highlight"><pre><span class="k">fn</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -41,14 +45,15 @@ fn main() {
         
         <tr>
           <td class="docs">
-            <p>To run the program, put the code in <code>hello-world.go</code> and
-use <code>go run</code>.</p>
+            <p>To the program, put the code in <code>hello-world.rs</code> and
+use <code>rustc</code> to compile it into a single binary and run it.</p>
 
           </td>
           <td class="code leading">
 	        
-            <div class="highlight"><pre><span class="gp">$</span> go run hello-world.go
-<span class="go">hello world</span>
+            <div class="highlight"><pre><span class="gp">$</span> rustc hello-world.rs
+<span class="gp">$</span> ./hello-world
+<span class="go">Hello, world!</span>
 </pre></div>
 
           </td>
@@ -56,15 +61,21 @@ use <code>go run</code>.</p>
         
         <tr>
           <td class="docs">
-            <p>Sometimes we&rsquo;ll want to build our programs into
-binaries. We can do this using <code>go build</code>.</p>
+            <p>Sometimes we&rsquo;ll want to build a project with multiple
+files and not just a single file. Put <code>hello-world.rs</code>
+in a directory, <code>cd</code> into it and use <code>cargo init</code> to
+initialize a project there, then <code>cargo run</code> to compile
+and run.</p>
 
           </td>
           <td class="code leading">
 	        
-            <div class="highlight"><pre><span class="gp">$</span> go build hello-world.go
-<span class="gp">$</span> ls
-<span class="go">hello-world	hello-world.go</span>
+            <div class="highlight"><pre><span class="gp">$</span> cargo init
+<span class="gp">$</span> cargo run
+<span class="go">Compiling hello-world v0.1.0 (/home/rustbyexample/examples/hello-world)</span>
+<span class="go">  Finished dev [unoptimized + debuginfo] target(s) in 12.92s</span>
+<span class="go">    Running `target/debug/hello-world`</span>
+<span class="go">Hello, world!</span>
 </pre></div>
 
           </td>
@@ -72,21 +83,7 @@ binaries. We can do this using <code>go build</code>.</p>
         
         <tr>
           <td class="docs">
-            <p>We can then execute the built binary directly.</p>
-
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="gp">$</span> ./hello-world
-<span class="go">hello world</span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            <p>Now that we can run and build basic Go programs, let&rsquo;s
+            <p>Now that we can build and run basic Rust programs, let&rsquo;s
 learn more about the language.</p>
 
           </td>

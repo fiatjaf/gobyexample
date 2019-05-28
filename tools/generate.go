@@ -99,13 +99,13 @@ func mustGlob(glob string) []string {
 	return paths
 }
 
-func whichLexer(path string) string {
-	if strings.HasSuffix(path, ".rust") {
-		return "rust"
+func whichLexer(path string) (string, bool) {
+	if strings.HasSuffix(path, ".rs") {
+		return "rust", true
 	} else if strings.HasSuffix(path, ".sh") {
-		return "console"
+		return "console", true
 	}
-	panic("No lexer for " + path)
+	return "", false
 }
 
 func debug(msg string) {
@@ -130,11 +130,6 @@ type Example struct {
 	RustCode    string
 	Segs        [][]*Seg
 	NextExample *Example
-}
-
-func parseHashFile(sourcePath string) (string, string) {
-	lines := readLines(sourcePath)
-	return lines[0], lines[1]
 }
 
 func parseSegs(sourcePath string) ([]*Seg, string) {
@@ -183,9 +178,12 @@ func parseSegs(sourcePath string) ([]*Seg, string) {
 	return segs, filecontent
 }
 
-func parseAndRenderSegs(sourcePath string) ([]*Seg, string) {
+func parseAndRenderSegs(sourcePath string) ([]*Seg, string, bool) {
+	lexer, ok := whichLexer(sourcePath)
+	if !ok {
+		return nil, "", ok
+	}
 	segs, filecontent := parseSegs(sourcePath)
-	lexer := whichLexer(sourcePath)
 	for _, seg := range segs {
 		if seg.Docs != "" {
 			seg.DocsRendered = markdown(seg.Docs)
@@ -198,7 +196,7 @@ func parseAndRenderSegs(sourcePath string) ([]*Seg, string) {
 	if lexer != "rust" {
 		filecontent = ""
 	}
-	return segs, filecontent
+	return segs, filecontent, true
 }
 
 func parseExamples() []*Example {
@@ -216,7 +214,10 @@ func parseExamples() []*Example {
 			example.Segs = make([][]*Seg, 0)
 			sourcePaths := mustGlob("examples/" + exampleID + "/*")
 			for _, sourcePath := range sourcePaths {
-				sourceSegs, filecontents := parseAndRenderSegs(sourcePath)
+				sourceSegs, filecontents, ok := parseAndRenderSegs(sourcePath)
+				if !ok {
+					continue
+				}
 				if filecontents != "" {
 					example.RustCode = filecontents
 				}
@@ -258,7 +259,7 @@ func main() {
 	copyFile("templates/site.css", siteDir+"/site.css")
 	copyFile("templates/favicon.ico", siteDir+"/favicon.ico")
 	copyFile("templates/404.html", siteDir+"/404.html")
-	copyFile("templates/play.png", siteDir+"/play.png")
+	copyFile("templates/rust-logo-blk.svg", siteDir+"/rust-logo-blk.svg")
 	examples := parseExamples()
 	renderIndex(examples)
 	renderExamples(examples)

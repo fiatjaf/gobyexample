@@ -2,12 +2,48 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Go by Example: If/Else</title>
+    <title>Rust by Example: If/Else</title>
     <link rel=stylesheet href="site.css">
   </head>
   <body>
     <div class="example" id="if-else">
-      <h2><a href="./">Go by Example</a>: If/Else</h2>
+      <pre id="rustcode" hidden>// Branching with `if` and `else` in Go is
+// straight-forward.
+
+package main
+
+import "fmt"
+
+func main() {
+
+    // Here's a basic example.
+    if 7%2 == 0 {
+        fmt.Println("7 is even")
+    } else {
+        fmt.Println("7 is odd")
+    }
+
+    // You can have an `if` statement without an else.
+    if 8%4 == 0 {
+        fmt.Println("8 is divisible by 4")
+    }
+
+    // A statement can precede conditionals; any variables
+    // declared in this statement are available in all
+    // branches.
+    if num := 9; num < 0 {
+        fmt.Println(num, "is negative")
+    } else if num < 10 {
+        fmt.Println(num, "has 1 digit")
+    } else {
+        fmt.Println(num, "has multiple digits")
+    }
+}
+
+// Note that you don't need parentheses around conditions
+// in Go, but that the braces are required.
+</pre>
+      <h2><a href="./">Rust by Example</a>: If/Else</h2>
       
       <table>
         
@@ -161,7 +197,7 @@ for basic conditions.</p>
       
       
       <p class="next">
-        Next example: <a href="switch">Switch</a>.
+        Next example: <a href="match">Match</a>.
       </p>
       
       <p class="footer">

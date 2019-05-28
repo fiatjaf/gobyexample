@@ -2,12 +2,42 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Go by Example: Sorting</title>
+    <title>Rust by Example: Sorting</title>
     <link rel=stylesheet href="site.css">
   </head>
   <body>
     <div class="example" id="sorting">
-      <h2><a href="./">Go by Example</a>: Sorting</h2>
+      <pre id="rustcode" hidden>// Go's `sort` package implements sorting for builtins
+// and user-defined types. We'll look at sorting for
+// builtins first.
+
+package main
+
+import "fmt"
+import "sort"
+
+func main() {
+
+    // Sort methods are specific to the builtin type;
+    // here's an example for strings. Note that sorting is
+    // in-place, so it changes the given slice and doesn't
+    // return a new one.
+    strs := []string{"c", "a", "b"}
+    sort.Strings(strs)
+    fmt.Println("Strings:", strs)
+
+    // An example of sorting `int`s.
+    ints := []int{7, 2, 4}
+    sort.Ints(ints)
+    fmt.Println("Ints:   ", ints)
+
+    // We can also use `sort` to check if a slice is
+    // already in sorted order.
+    s := sort.IntsAreSorted(ints)
+    fmt.Println("Sorted: ", s)
+}
+</pre>
+      <h2><a href="./">Rust by Example</a>: Sorting</h2>
       
       <table>
         

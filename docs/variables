@@ -2,18 +2,48 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Go by Example: Variables</title>
+    <title>Rust by Example: Variables</title>
     <link rel=stylesheet href="site.css">
   </head>
   <body>
     <div class="example" id="variables">
-      <h2><a href="./">Go by Example</a>: Variables</h2>
+      <pre id="rustcode" hidden>// In Rust, _variables_ are explicitly declared and used by
+// the compiler to e.g. check type-correctness of function
+// calls.
+
+fn main() {
+    // `let` declares a variable.
+    let a = "initial";
+    println!("{}", a);
+
+    // You can declare multiple variables at once using tuples.
+    let (b, c) = (1, 2);
+    println!("{:?}", (c, b));
+
+    // Rust will infer the type of initialized variables.
+    let d = true;
+    println!("{}", d);
+
+    // Variables are constant by default. If you want to change
+    // them you must declare them as mutable.
+    let mut e = 77;
+    println!("{}", e);
+    e = 23;
+    println!("{}", e);
+
+    // You can explicitly declare the type of a variable if you
+    // can't or don't want to allow Rust infer it.
+    let f: u32 = 4;
+    println!("{}", f);
+}
+</pre>
+      <h2><a href="./">Rust by Example</a>: Variables</h2>
       
       <table>
         
         <tr>
           <td class="docs">
-            <p>In Go, <em>variables</em> are explicitly declared and used by
+            <p>In Rust, <em>variables</em> are explicitly declared and used by
 the compiler to e.g. check type-correctness of function
 calls.</p>
 
@@ -26,23 +56,18 @@ calls.</p>
         
         <tr>
           <td class="docs">
-            
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
-</pre></div>
+            <p><code>let</code> declares a variable.</p>
 
           </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            
-          </td>
           <td class="code leading">
 	        
-            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+              <a href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code="><img title="Run code" src="rust-logo-blk.svg" class="run" /></a>
+              <script>
+                document.querySelector('a[href^="https://play.rust-lang.org"]').href +=
+                  escape(document.getElementById('rustcode').innerHTML)
+              </script>
+            
+            <div class="highlight"><pre><span class="k">fn</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 </pre></div>
 
           </td>
@@ -54,7 +79,8 @@ calls.</p>
           </td>
           <td class="code leading">
 	        
-            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+            <div class="highlight"><pre><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;initial&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 
           </td>
@@ -62,13 +88,13 @@ calls.</p>
         
         <tr>
           <td class="docs">
-            <p><code>var</code> declares 1 or more variables.</p>
+            <p>You can declare multiple variables at once using tuples.</p>
 
           </td>
           <td class="code leading">
 	        
-            <div class="highlight"><pre><span class="w">    </span><span class="n">var</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;initial&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"></span>
+            <div class="highlight"><pre><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;{:?}&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">));</span><span class="w"></span>
 </pre></div>
 
           </td>
@@ -76,13 +102,13 @@ calls.</p>
         
         <tr>
           <td class="docs">
-            <p>You can declare multiple variables at once.</p>
+            <p>Rust will infer the type of initialized variables.</p>
 
           </td>
           <td class="code leading">
 	        
-            <div class="highlight"><pre><span class="w">    </span><span class="n">var</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="n">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
-<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"></span>
+            <div class="highlight"><pre><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 
           </td>
@@ -90,13 +116,16 @@ calls.</p>
         
         <tr>
           <td class="docs">
-            <p>Go will infer the type of initialized variables.</p>
+            <p>Variables are constant by default. If you want to change
+them you must declare them as mutable.</p>
 
           </td>
           <td class="code leading">
 	        
-            <div class="highlight"><pre><span class="w">    </span><span class="n">var</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"></span>
-<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w"></span>
+            <div class="highlight"><pre><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">77</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 
           </td>
@@ -104,31 +133,14 @@ calls.</p>
         
         <tr>
           <td class="docs">
-            <p>Variables declared without a corresponding
-initialization are <em>zero-valued</em>. For example, the
-zero value for an <code>int</code> is <code>0</code>.</p>
-
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="w">    </span><span class="n">var</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="n">int</span><span class="w"></span>
-<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"></span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            <p>The <code>:=</code> syntax is shorthand for declaring and
-initializing a variable, e.g. for
-<code>var f string = &quot;short&quot;</code> in this case.</p>
+            <p>You can explicitly declare the type of a variable if you
+can&rsquo;t or don&rsquo;t want to allow Rust infer it.</p>
 
           </td>
           <td class="code">
 	        
-            <div class="highlight"><pre><span class="w">    </span><span class="n">f</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;short&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="w"></span>
+            <div class="highlight"><pre><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="o">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 
@@ -145,12 +157,13 @@ initializing a variable, e.g. for
           </td>
           <td class="code">
 	        
-            <div class="highlight"><pre><span class="gp">$</span> go run variables.go
+            <div class="highlight"><pre><span class="gp">$</span> cargo run
 <span class="go">initial</span>
-<span class="go">1 2</span>
+<span class="go">(2, 1)</span>
 <span class="go">true</span>
-<span class="go">0</span>
-<span class="go">short</span>
+<span class="go">77</span>
+<span class="go">23</span>
+<span class="go">4</span>
 </pre></div>
 
           </td>
@@ -160,7 +173,7 @@ initializing a variable, e.g. for
       
       
       <p class="next">
-        Next example: <a href="constants">Constants</a>.
+        Next example: <a href="loops">Loops</a>.
       </p>
       
       <p class="footer">

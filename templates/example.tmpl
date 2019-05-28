@@ -7,6 +7,7 @@
   </head>
   <body>
     <div class="example" id="{{.ID}}">
+      <pre id="rustcode" hidden>{{ .RustCode }}</pre>
       <h2><a href="./">Rust by Example</a>: {{.Name}}</h2>
       {{range .Segs}}
       <table>
@@ -19,7 +20,8 @@
 	        {{if .CodeRun}}
               <a href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code="><img title="Run code" src="rust-logo-blk.svg" class="run" /></a>
               <script>
-                document.querySelector('a[href^="https://play.rust-lang.org"]').href += escape(`{{.Code}}`.trim())
+                document.querySelector('a[href^="https://play.rust-lang.org"]').href +=
+                  escape(document.getElementById('rustcode').innerHTML)
               </script>
             {{end}}
             {{.CodeRendered}}

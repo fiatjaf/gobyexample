@@ -2,119 +2,12 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Go by Example: Variadic Functions</title>
+    <title>Rust by Example: Variadic Functions</title>
     <link rel=stylesheet href="site.css">
   </head>
   <body>
     <div class="example" id="variadic-functions">
-      <h2><a href="./">Go by Example</a>: Variadic Functions</h2>
-      
-      <table>
-        
-        <tr>
-          <td class="docs">
-            <p><a href="http://en.wikipedia.org/wiki/Variadic_function"><em>Variadic functions</em></a>
-can be called with any number of trailing arguments.
-For example, <code>fmt.Println</code> is a common variadic
-function.</p>
-
-          </td>
-          <td class="code empty leading">
-	        
-            
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="n">package</span><span class="w"> </span><span class="n">main</span><span class="w"></span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="n">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            <p>Here&rsquo;s a function that will take an arbitrary number
-of <code>int</code>s as arguments.</p>
-
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">sum</span><span class="p">(</span><span class="n">nums</span><span class="w"> </span><span class="p">...</span><span class="n">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">total</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">range</span><span class="w"> </span><span class="n">nums</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">num</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">fmt</span><span class="p">.</span><span class="n">Println</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="n">func</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            <p>Variadic functions can be called in the usual way
-with individual arguments.</p>
-
-          </td>
-          <td class="code leading">
-	        
-            <div class="highlight"><pre><span class="w">    </span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-        <tr>
-          <td class="docs">
-            <p>If you already have multiple args in a slice,
-apply them to a variadic function using
-<code>func(slice...)</code> like this.</p>
-
-          </td>
-          <td class="code">
-	        
-            <div class="highlight"><pre><span class="w">    </span><span class="n">nums</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="n">int</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">sum</span><span class="p">(</span><span class="n">nums</span><span class="p">...)</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-
-          </td>
-        </tr>
-        
-      </table>
+      <h2><a href="./">Rust by Example</a>: Variadic Functions</h2>
       
       <table>
         

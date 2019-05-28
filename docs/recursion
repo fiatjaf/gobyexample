@@ -2,12 +2,33 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Go by Example: Recursion</title>
+    <title>Rust by Example: Recursion</title>
     <link rel=stylesheet href="site.css">
   </head>
   <body>
     <div class="example" id="recursion">
-      <h2><a href="./">Go by Example</a>: Recursion</h2>
+      <pre id="rustcode" hidden>// Go supports
+// <a href="http://en.wikipedia.org/wiki/Recursion_(computer_science)"><em>recursive functions</em></a>.
+// Here's a classic factorial example.
+
+package main
+
+import "fmt"
+
+// This `fact` function calls itself until it reaches the
+// base case of `fact(0)`.
+func fact(n int) int {
+    if n == 0 {
+        return 1
+    }
+    return n * fact(n-1)
+}
+
+func main() {
+    fmt.Println(fact(7))
+}
+</pre>
+      <h2><a href="./">Rust by Example</a>: Recursion</h2>
       
       <table>
         

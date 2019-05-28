@@ -1,6 +1,7 @@
-$ go run variables.go
+$ cargo run
 initial
-1 2
+(2, 1)
 true
-0
-short
+77
+23
+4
